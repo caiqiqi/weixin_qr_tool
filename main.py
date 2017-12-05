@@ -36,7 +36,7 @@ class JSONObject:
     def __init__(self, d):
         self.__dict__ = d
 
-def print_(n=30):
+def print_(n=50):
     print "-" * n
 
 def log(p_log=""):
@@ -96,14 +96,22 @@ def mkdir_if_not_exist(p_l_path):
     else:
         print "[!] Please insert a list"
 
-def write_to_zip(p_num=1):
+def list_files(p_dir): 
+    l_dirs = os.walk(p_dir) 
+    l_files = []
+    for root, dirs, files in l_dirs:      
+        for f in files: 
+            l_files.append(os.path.join(root, f))
+    return l_files
+
+def write_to_zip(p_dir="gen/combined/"):
     '''将图片打包到zip压缩文件
     '''
     t = time.strftime("%Y%m%d", time.localtime())
     n = u'图片' + t + '.zip'
     print "[*] Starting zipping..."
-    with zipfile.ZipFile(n, 'w') as myzip:
-        for i in range(0,p_num):
+    with zipfile.ZipFile(n, 'w', encoding="utf-8") as myzip:
+        for i in list_files(p_dir):
             myzip.write(FILE_COMB.format(i))
     print "[*] Zipped!"
     return n
@@ -148,7 +156,7 @@ def main():
         qr_thumb_w, qr_thumb_h       = img_qr_thumb.size
         ### 给base图添打上二维码
         mark_qrcode(img_base_re, img_qr_thumb, FILE_COMB.format(name_pic), base_re_w-qr_thumb_w, base_re_h-qr_thumb_h)
-        write_to_zip()
+    write_to_zip()
 
 if '__main__' == __name__:
     if IS_DEMO:  demo()
