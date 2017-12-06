@@ -148,7 +148,7 @@ def main():
         qr_thumb_w, qr_thumb_h       = img_qr_thumb.size
         ### 给base图添打上二维码
         mark_qrcode(img_base_re, img_qr_thumb, FILE_COMB.format(name_pic), base_re_w-qr_thumb_w, base_re_h-qr_thumb_h)
-        write_to_zip()
+    #write_to_zip()
 
 if '__main__' == __name__:
     if IS_DEMO:  demo()
