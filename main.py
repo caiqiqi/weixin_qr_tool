@@ -36,7 +36,7 @@ class JSONObject:
     def __init__(self, d):
         self.__dict__ = d
 
-def print_(n=30):
+def print_(n=50):
     print "-" * n
 
 def log(p_log=""):
@@ -96,17 +96,40 @@ def mkdir_if_not_exist(p_l_path):
     else:
         print "[!] Please insert a list"
 
-def write_to_zip(p_num=1):
+def list_files(p_dir): 
+    l_dirs = os.walk(p_dir) 
+    l_files = []
+    for root, dirs, files in l_dirs:      
+        for f in files: 
+            l_files.append(os.path.join(root, f))
+    return l_files
+
+def write_to_zip(p_dir="gen/combined/"):
     '''将图片打包到zip压缩文件
     '''
     t = time.strftime("%Y%m%d", time.localtime())
     n = u'图片' + t + '.zip'
     print "[*] Starting zipping..."
-    with zipfile.ZipFile(n, 'w') as myzip:
-        for i in range(0,p_num):
+    with zipfile.ZipFile(n, 'w', encoding="utf-8") as myzip:
+        for i in list_files(p_dir):
             myzip.write(FILE_COMB.format(i))
     print "[*] Zipped!"
     return n
+
+def replace_invalid_filename_char(filename, replaced_char='_'):
+    '''Replace the invalid characaters in the filename with specified characater.
+    The default replaced characater is '_'.
+    e.g. 
+    C/C++ -> C_C++
+    '''
+    valid_filename = filename
+    invalid_characaters = '\\/:*?"<>|'
+    for c in invalid_characaters:
+        #print 'c:', c
+        valid_filename = valid_filename.replace(c, replaced_char)
+
+    return valid_filename
+
 
 def demo():
     r0 = _s.get(URL_API)
@@ -130,7 +153,7 @@ def main():
     name_paper= ""                                                   # 文章名字(标题)
     for i in data.data:
         name_paper = i.title                                         # 先得到文章的名字
-        name_pic   = name_paper                                      # 将图片名字设置为文章的标题
+        name_pic   = replace_invalid_filename_char(name_paper)       # 将图片名字设置为文章的标题(过滤掉特殊字符)
         url_cover  = i.cover
         fetch_img_and_save(_s, url_cover, FILE_BASE.format(name_pic))
         url_qr  = URL_QR_API + URL_ARTICLE_PRE.format(i.id)          # 待给二维码网站的url
@@ -149,6 +172,7 @@ def main():
         ### 给base图添打上二维码
         mark_qrcode(img_base_re, img_qr_thumb, FILE_COMB.format(name_pic), base_re_w-qr_thumb_w, base_re_h-qr_thumb_h)
     #write_to_zip()
+
 
 if '__main__' == __name__:
     if IS_DEMO:  demo()
